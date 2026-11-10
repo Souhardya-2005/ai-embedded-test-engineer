@@ -1,0 +1,1350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embedded Test Engineer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #141c2e;
+      --panel2: #1b263b;
+      --border: #2b3850;
+      --text: #edf2fa;
+      --muted: #9baac1;
+      --blue: #79a7ff;
+      --green: #4adea0;
+      --red: #ff777e;
+      --yellow: #f5c66a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    button, input, select { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 14px;
+      background: var(--panel2);
+      color: var(--text);
+    }
+
+    button:hover:not(:disabled) { filter: brightness(1.18); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .primary {
+      background: #2858b8;
+      border-color: #4679db;
+      font-weight: 700;
+    }
+
+    .secondary { background: transparent; }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      background: #10182a;
+      padding: 18px 24px;
+    }
+
+    .header-inner, main {
+      width: min(1180px, calc(100% - 32px));
+      margin: auto;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    h1 { margin: 0; font-size: 22px; letter-spacing: -.4px; }
+    h2 { font-size: 16px; margin: 0 0 14px; }
+    h3 { font-size: 14px; margin: 0 0 8px; }
+    p { margin: 6px 0; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 7px 12px;
+      background: var(--panel);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--yellow);
+    }
+
+    .connected .dot { background: var(--green); }
+    .disconnected .dot { background: var(--red); }
+
+    main { padding: 24px 0 48px; }
+    .grid { display: grid; gap: 16px; }
+    .overview { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .two-col { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); }
+
+    .panel, .metric {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-value { font-size: 27px; font-weight: 700; margin-top: 5px; }
+    .metric-sub { color: var(--muted); font-size: 12px; }
+
+    .section { margin-top: 20px; }
+    .field { display: grid; gap: 6px; margin-bottom: 14px; }
+    label { color: var(--muted); font-size: 12px; }
+
+    input, select {
+      width: 100%;
+      padding: 10px 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      background: #0f1728;
+    }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .message {
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #0f1728;
+      overflow-wrap: anywhere;
+    }
+
+    .message.error { border-color: #8d4249; color: #ffc0c4; }
+    .message.success { border-color: #28694f; color: #a7f3d0; }
+    .message.warning { border-color: #776239; color: #f9dda1; }
+
+    .progress-track {
+      height: 6px;
+      background: #263248;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: var(--blue);
+      transition: width .25s ease;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .reading {
+      background: #0f1728;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .reading .value {
+      font-size: 20px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #303b50;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .badge.PASS { color: var(--green); background: #15392f; }
+    .badge.FAIL { color: var(--red); background: #45242d; }
+    .badge.INCONCLUSIVE { color: var(--yellow); background: #443722; }
+    .badge.ERROR { color: var(--red); background: #45242d; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 11px 9px;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th { color: var(--muted); font-size: 11px; font-weight: 600; }
+    td { font-size: 12px; }
+    .empty { text-align: center; color: var(--muted); padding: 24px 8px; }
+    .history-row { cursor: pointer; }
+    .history-row:hover { background: #1b263b; }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .two-col { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      header { padding: 16px; }
+      h1 { font-size: 19px; }
+    }
+
+    @media (max-width: 400px) {
+      .results-grid { grid-template-columns: 1fr; }
+      .metric-value { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Embedded Test Engineer</h1>
+      <p class="muted small">Arduino UNO R3 · Automated component diagnostics</p>
+    </div>
+    <div id="connection" class="status">
+      <span class="dot"></span>
+      <span id="connectionText">Checking Arduino...</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="grid overview">
+    <div class="metric">
+      <div class="metric-label">Tests executed</div>
+      <div class="metric-value" id="totalCount">0</div>
+      <div class="metric-sub">Saved test runs</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Passed runs</div>
+      <div class="metric-value" id="passCount">0</div>
+      <div class="metric-sub">All applicable checks passed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Failed runs</div>
+      <div class="metric-value" id="failCount">0</div>
+      <div class="metric-sub">At least one check failed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Inconclusive runs</div>
+      <div class="metric-value" id="inconclusiveCount">0</div>
+      <div class="metric-sub">Insufficient evidence</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Latest verdict</div>
+      <div class="metric-value" id="latestStatus">—</div>
+      <div class="metric-sub">Most recent saved run</div>
+    </div>
+  </section>
+
+  <section class="grid two-col section">
+    <div class="panel">
+      <h2>Run a component test</h2>
+      <p class="muted small">Choose the supported component and give it a label for your report.</p>
+
+      <div class="field">
+        <label for="component">Component type</label>
+        <select id="component">
+          <option value="led">LED — electrical test fixture</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="label">Component label</label>
+        <input id="label" maxlength="40" value="LED A" placeholder="e.g. LED A">
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="testButton">▶ Test Components</button>
+        <button class="secondary" id="refreshButton">Refresh status</button>
+      </div>
+
+      <div class="section">
+        <div class="section-heading">
+          <h3 id="progressTitle">Ready to test</h3>
+          <span id="progressPercent" class="muted small">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+        <div id="message" class="message" role="status" aria-live="polite">
+          Connect the Arduino and run a test to begin.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Latest measurements</h2>
+      <p class="muted small" id="latestTime">No test run selected.</p>
+      <div class="results-grid section">
+        <div class="reading">
+          <div class="metric-label">Drive voltage</div>
+          <div class="value" id="voltageA0">—</div>
+          <div class="metric-sub">A0 · volts</div>
+        </div>
+        <div class="reading">
+          <div class="metric-label">LED voltage</div>
+          <div class="value" id="voltageA1">—</div>
+          <div class="metric-sub">A1 · volts</div>
+        </div>
+        <div class="reading">
+          <div class="metric-label">LED current</div>
+          <div class="value" id="currentLED">—</div>
+          <div class="metric-sub">Estimated · mA</div>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Diagnostic interpretation</h3>
+        <p id="diagnosis" class="muted">Measurements will appear here after testing.</p>
+      </div>
+      <div class="section">
+        <h3>Firmware hint</h3>
+        <p id="firmwareHint" class="muted">—</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-heading">
+      <div>
+        <h2>Individual test results</h2>
+        <p class="muted small">Deterministic checks against the configured acceptance limits.</p>
+      </div>
+      <span id="overallBadge" class="badge">NO RESULT</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Test ID</th>
+            <th>Test</th>
+            <th>Expected</th>
+            <th>Actual</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody">
+          <tr><td colspan="5" class="empty">Run a component test to view the results.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel section">
+    <div class="section-heading">
+      <div>
+        <h2>Test history</h2>
+        <p class="muted small">Select a saved run to inspect its measurements and verdict.</p>
+      </div>
+      <div class="actions">
+        <button id="csvButton">Export CSV</button>
+        <button id="jsonButton">Export JSON</button>
+        <button id="historyButton">Refresh history</button>
+      </div>
+    </div>
+    
+<section class="panel section">
+  <div class="section-heading">
+    <div>
+      <h2>AI Test Engineer</h2>
+      <p class="muted small">
+        Generate test cases and analyze evidence from actual test runs.
+      </p>
+    </div>
+    <span class="badge">RULE-BASED ENGINE</span>
+  </div>
+
+  <div class="actions">
+  <button id="generatePlanButton">Generate Test Plan</button>
+  <button id="runSuiteButton" class="primary">▶ Run AI Test Suite</button>
+  <button id="analyzeButton">Analyze Latest Test</button>
+</div>
+
+<div class="section">
+  <h3>Suite progress</h3>
+  <p id="suiteMessage" class="message" role="status" aria-live="polite">
+    Generate a test plan, then run the supported tests.
+  </p>
+  <div class="progress-track">
+    <div class="progress-bar" id="suiteProgressBar"></div>
+  </div>
+  <p id="suiteProgressText" class="muted small">No suite executed yet.</p>
+</div>
+
+<div class="section">
+  <h3>Device test summary</h3>
+  <div class="results-grid">
+    <div class="reading">
+      <div class="metric-label">Device verdict</div>
+      <div class="value" id="suiteDeviceStatus">—</div>
+    </div>
+    <div class="reading">
+      <div class="metric-label">Suite verdict</div>
+      <div class="value" id="suiteOverallStatus">—</div>
+    </div>
+    <div class="reading">
+      <div class="metric-label">Passed</div>
+      <div class="value" id="suitePassCount">0</div>
+    </div>
+    <div class="reading">
+      <div class="metric-label">Failed</div>
+      <div class="value" id="suiteFailCount">0</div>
+    </div>
+    <div class="reading">
+      <div class="metric-label">Inconclusive</div>
+      <div class="value" id="suiteInconclusiveCount">0</div>
+    </div>
+    <div class="reading">
+      <div class="metric-label">Blocked / Error</div>
+      <div class="value" id="suiteBlockedCount">0 / 0</div>
+    </div>
+  </div>
+
+  <p id="suiteSummaryText" class="muted small"></p>
+
+  <div class="actions section">
+    <button id="suiteJsonButton">Export Suite JSON</button>
+    <button id="suiteCsvButton">Export Suite CSV</button>
+    <button id="suiteHistoryButton">Refresh Suite History</button>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Executed test-suite results</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Purpose</th>
+          <th>Execution</th>
+          <th>Status</th>
+          <th>Expected</th>
+          <th>Actual / Evidence</th>
+        </tr>
+      </thead>
+      <tbody id="suiteResultsBody">
+        <tr>
+          <td colspan="6" class="empty">No suite results yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Saved suite history</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Component</th>
+          <th>Device verdict</th>
+          <th>Suite verdict</th>
+        </tr>
+      </thead>
+      <tbody id="suiteHistoryBody">
+        <tr>
+          <td colspan="4" class="empty">No saved suites loaded.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <div class="section">
+    <h3>Generated test cases</h3>
+    <p id="aiPlanMessage" class="muted">
+      Generate a plan to view proposed tests.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Purpose</th>
+            <th>Execution type</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="aiPlanBody">
+          <tr>
+            <td colspan="5" class="empty">No plan generated yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Failure analysis</h3>
+    <p id="aiAnalysisMessage" class="muted">
+      Run a physical test before requesting analysis.
+    </p>
+    <div id="aiAnalysisBody"></div>
+  </div>
+</section>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Component</th>
+            <th>Verdict</th>
+            <th>LED voltage</th>
+            <th>LED current</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="5" class="empty">Loading test history...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="footer">
+    Local testing only · PASS/FAIL is based on measured values and configured limits.
+    Communication errors are not component failures.
+  </p>
+</main>
+
+<script>
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  let history = [];
+  let currentRun = null;
+  let running = false;
+
+  function setMessage(text, type = "") {
+    const el = $("message");
+    el.textContent = text;
+    el.className = "message" + (type ? " " + type : "");
+  }
+
+  function setProgress(percent, title) {
+    $("progressBar").style.width = percent + "%";
+    $("progressPercent").textContent = percent + "%";
+    $("progressTitle").textContent = title;
+  }
+
+  function setBadge(el, status) {
+    el.textContent = status || "NO RESULT";
+    el.className = "badge " + (status || "");
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      }
+    });
+
+    const body = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      let detail = body.detail || "Request failed (" + response.status + ")";
+      if (typeof detail === "object") {
+        detail = detail.message || JSON.stringify(detail);
+      }
+      throw new Error(detail);
+    }
+
+    return body;
+  }
+
+  async function refreshStatus() {
+    try {
+      const status = await api("/api/status");
+      const indicator = $("connection");
+
+      if (status.connected) {
+        indicator.className = "status connected";
+        $("connectionText").textContent =
+          "Connected · " + (status.port || "USB");
+        $("testButton").disabled = running;
+      } else {
+        indicator.className = "status disconnected";
+        $("connectionText").textContent = "Arduino disconnected";
+        $("testButton").disabled = true;
+      }
+    } catch (error) {
+      $("connection").className = "status disconnected";
+      $("connectionText").textContent = "Backend unavailable";
+      $("testButton").disabled = true;
+    }
+  }
+
+  function renderMeasurements(run) {
+    const m = run.measurements || {};
+
+    $("voltageA0").textContent = Number.isFinite(m.voltage_a0_v)
+      ? m.voltage_a0_v.toFixed(3) : "—";
+    $("voltageA1").textContent = Number.isFinite(m.voltage_a1_v)
+      ? m.voltage_a1_v.toFixed(3) : "—";
+    $("currentLED").textContent = Number.isFinite(m.led_current_ma)
+      ? m.led_current_ma.toFixed(3) : "—";
+
+    $("latestTime").textContent =
+      (run.component || "Component") + " · " +
+      (run.timestamp ? new Date(run.timestamp).toLocaleString() : "Time unavailable");
+
+    $("diagnosis").textContent = run.diagnosis || "No diagnosis supplied.";
+    $("firmwareHint").textContent = run.firmware_hint || "Not available";
+    setBadge($("overallBadge"), run.overall_status);
+
+    const body = $("resultsBody");
+    body.replaceChildren();
+
+    const tests = run.tests || run.results?.tests || [];
+
+    if (!tests.length) {
+      body.innerHTML =
+        '<tr><td colspan="5" class="empty">No individual test results.</td></tr>';
+      return;
+    }
+
+    for (const test of tests) {
+      const tr = document.createElement("tr");
+      const values = [
+        test.test_id,
+        test.purpose,
+        test.expected,
+        test.actual + (test.unit ? " " + test.unit : ""),
+        test.status
+      ];
+
+      values.forEach((value, index) => {
+        const td = document.createElement("td");
+        td.textContent = value == null ? "—" : String(value);
+        if (index === 4) {
+          const badge = document.createElement("span");
+          badge.className = "badge " + String(value);
+          badge.textContent = String(value);
+          td.replaceChildren(badge);
+        }
+        tr.appendChild(td);
+      });
+
+      body.appendChild(tr);
+    }
+  }
+
+  async function runTest() {
+    if (running) return;
+
+    const label = $("label").value.trim();
+    if (!label) {
+      setMessage("Enter a component label before running the test.", "warning");
+      $("label").focus();
+      return;
+    }
+
+    running = true;
+    $("testButton").disabled = true;
+    $("refreshButton").disabled = true;
+    setProgress(20, "Checking connection...");
+    setMessage("Checking the Arduino connection...", "");
+
+    try {
+      const status = await api("/api/status");
+
+      if (!status.connected) {
+        throw new Error("Arduino is disconnected. Check the USB cable and COM port.");
+      }
+
+      setProgress(55, "Running electrical measurements...");
+      setMessage("The Arduino is measuring voltage and current. Please wait.");
+
+      const run = await api("/api/test/led", {
+        method: "POST",
+        body: JSON.stringify({ component_label: label })
+      });
+
+      currentRun = run;
+      renderMeasurements(run);
+      setProgress(100, "Test completed");
+      setMessage(
+        "Test completed: " + run.overall_status +
+        ". Measurements were saved to test history.",
+        run.overall_status === "PASS" ? "success" :
+          run.overall_status === "FAIL" ? "error" : "warning"
+      );
+
+      await refreshHistory();
+    } catch (error) {
+      setProgress(0, "Test could not be completed");
+      setMessage(
+        error.message + " No component failure is inferred from a communication error.",
+        "error"
+      );
+    } finally {
+      running = false;
+      $("refreshButton").disabled = false;
+      await refreshStatus();
+    }
+  }
+
+  async function refreshHistory() {
+    try {
+      history = await api("/api/history?limit=100");
+      renderHistory();
+      updateSummary();
+    } catch (error) {
+      $("historyBody").innerHTML = "";
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 5;
+      td.className = "empty";
+      td.textContent = "Unable to load history: " + error.message;
+      tr.appendChild(td);
+      $("historyBody").appendChild(tr);
+    }
+  }
+
+  function renderHistory() {
+    const body = $("historyBody");
+    body.replaceChildren();
+
+    if (!history.length) {
+      body.innerHTML =
+        '<tr><td colspan="5" class="empty">No saved tests yet.</td></tr>';
+      return;
+    }
+
+    for (const run of history) {
+      const tr = document.createElement("tr");
+      tr.className = "history-row";
+      tr.title = "Click to view this run";
+      const m = run.measurements || {};
+      const cells = [
+        run.timestamp ? new Date(run.timestamp).toLocaleString() : "—",
+        run.component || "—",
+        run.overall_status || "—",
+        Number.isFinite(m.voltage_a1_v) ? m.voltage_a1_v.toFixed(3) + " V" : "—",
+        Number.isFinite(m.led_current_ma) ? m.led_current_ma.toFixed(3) + " mA" : "—"
+      ];
+
+      cells.forEach((value, index) => {
+        const td = document.createElement("td");
+        td.textContent = value;
+        if (index === 2) {
+          const badge = document.createElement("span");
+          badge.className = "badge " + String(value);
+          badge.textContent = String(value);
+          td.replaceChildren(badge);
+        }
+        tr.appendChild(td);
+      });
+
+      tr.addEventListener("click", () => {
+        currentRun = run.results || run;
+        if (!currentRun.overall_status) {
+          currentRun.overall_status = run.overall_status;
+        }
+        renderMeasurements(currentRun);
+        $("label").value = run.component || "LED A";
+        setMessage("Viewing a saved test run. Run a new test to collect fresh measurements.");
+        setProgress(100, "Saved test selected");
+      });
+
+      body.appendChild(tr);
+    }
+  }
+
+  
+function updateSummary() {
+  // Total number of saved test runs
+  $("totalCount").textContent = history.length;
+
+  // Number of runs that passed all applicable checks
+  $("passCount").textContent =
+    history.filter(r => r.overall_status === "PASS").length;
+
+  // Number of runs with at least one failed check
+  $("failCount").textContent =
+    history.filter(r => r.overall_status === "FAIL").length;
+
+  // Number of runs where the outcome could not be determined
+  $("inconclusiveCount").textContent =
+    history.filter(r => r.overall_status === "INCONCLUSIVE").length;
+
+  // Verdict from the most recent saved run
+  $("latestStatus").textContent =
+    history.length > 0 ? history[0].overall_status : "—";
+}
+
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function exportJSON() {
+    downloadFile(
+      "embedded-test-report.json",
+      JSON.stringify(history, null, 2),
+      "application/json"
+    );
+  }
+
+  function csvCell(value) {
+    const s = String(value ?? "");
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
+  function exportCSV() {
+    const columns = [
+      "run_id", "timestamp", "component", "overall_status",
+      "voltage_a0_v", "voltage_a1_v", "series_current_ma", "led_current_ma",
+      "diagnosis"
+    ];
+
+    const lines = [columns.join(",")];
+
+    for (const row of history) {
+      const result = row.results || {};
+      const m = row.measurements || {};
+      lines.push([
+        row.run_id,
+        row.timestamp,
+        row.component,
+        row.overall_status,
+        m.voltage_a0_v,
+        m.voltage_a1_v,
+        m.series_current_ma,
+        m.led_current_ma,
+        result.diagnosis
+      ].map(csvCell).join(","));
+    }
+
+    downloadFile("embedded-test-report.csv", lines.join("\r\n"), "text/csv;charset=utf-8");
+  }
+
+  $("testButton").addEventListener("click", runTest);
+  $("refreshButton").addEventListener("click", refreshStatus);
+  $("historyButton").addEventListener("click", refreshHistory);
+  $("csvButton").addEventListener("click", exportCSV);
+  $("jsonButton").addEventListener("click", exportJSON);
+
+  
+function addTextCell(row, value) {
+  const cell = document.createElement("td");
+  cell.textContent = value == null ? "—" : String(value);
+  row.appendChild(cell);
+  return cell;
+}
+
+async function generateAIPlan() {
+  const button = $("generatePlanButton");
+  button.disabled = true;
+  $("aiPlanMessage").textContent = "Generating test cases...";
+
+  try {
+    const label = $("label").value.trim() || "LED A";
+
+    const plan = await api("/api/ai/plan", {
+      method: "POST",
+      body: JSON.stringify({
+        component: $("component").value,
+        component_label: label
+      })
+    });
+
+    if (!plan.ok) {
+      throw new Error(plan.message || plan.error || "Plan generation failed");
+    }
+
+    const body = $("aiPlanBody");
+    body.replaceChildren();
+
+    for (const test of plan.cases) {
+      const row = document.createElement("tr");
+
+      addTextCell(row, test.test_id);
+      addTextCell(row, test.category);
+      addTextCell(row, test.purpose);
+      addTextCell(row, test.execution);
+
+      const statusCell = addTextCell(row, test.status);
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = test.status;
+      statusCell.replaceChildren(badge);
+
+      // Show full procedure and expected result on row selection.
+      row.title =
+        "Preconditions: " + test.preconditions +
+        "\nProcedure: " + test.procedure +
+        "\nExpected: " + test.expected;
+
+      body.appendChild(row);
+    }
+
+    $("aiPlanMessage").textContent =
+      plan.test_count + " test cases generated. " +
+      "PROPOSED cases have not been executed.";
+  } catch (error) {
+    $("aiPlanMessage").textContent =
+      "Could not generate plan: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function showAnalysis(analysis) {
+  const body = $("aiAnalysisBody");
+  body.replaceChildren();
+
+  const summary = document.createElement("p");
+  summary.textContent =
+    "Analysis: " + analysis.analysis_status +
+    " · Official verdict: " + (analysis.overall_status || "Unavailable");
+  body.appendChild(summary);
+
+  const note = document.createElement("p");
+  note.className = "muted small";
+  note.textContent = analysis.verdict_note || "";
+  body.appendChild(note);
+
+  for (const finding of analysis.findings || []) {
+    const card = document.createElement("div");
+    card.className = "reading section";
+
+    const title = document.createElement("h3");
+    title.textContent =
+      finding.severity.toUpperCase() + ": " + finding.message;
+    card.appendChild(title);
+
+    if (finding.evidence) {
+      const evidence = document.createElement("pre");
+      evidence.style.whiteSpace = "pre-wrap";
+      evidence.style.overflowWrap = "anywhere";
+      evidence.textContent = JSON.stringify(finding.evidence, null, 2);
+      card.appendChild(evidence);
+    }
+
+    if (finding.likely_causes && finding.likely_causes.length) {
+      const causesTitle = document.createElement("p");
+      causesTitle.textContent = "Possible causes:";
+      card.appendChild(causesTitle);
+
+      const list = document.createElement("ul");
+      for (const cause of finding.likely_causes) {
+        const item = document.createElement("li");
+        item.textContent = cause;
+        list.appendChild(item);
+      }
+      card.appendChild(list);
+    }
+
+    const confidence = document.createElement("p");
+    confidence.className = "muted small";
+    confidence.textContent =
+      "Confidence: " + (finding.confidence || "unspecified");
+    card.appendChild(confidence);
+
+    body.appendChild(card);
+  }
+
+  const regressionTitle = document.createElement("h3");
+  regressionTitle.textContent = "Suggested regression tests";
+  body.appendChild(regressionTitle);
+
+  const regressionList = document.createElement("ul");
+  for (const test of analysis.regression_tests || []) {
+    const item = document.createElement("li");
+    item.textContent = test;
+    regressionList.appendChild(item);
+  }
+  body.appendChild(regressionList);
+}
+
+async function analyzeLatestTest() {
+  const button = $("analyzeButton");
+  button.disabled = true;
+  $("aiAnalysisMessage").textContent = "Analyzing measurements...";
+  $("aiAnalysisBody").replaceChildren();
+
+  try {
+    let report = currentRun;
+
+    if (!report) {
+      if (!history.length) {
+        throw new Error("Run a physical LED test first.");
+      }
+      report = history[0].results || history[0];
+    }
+
+    const analysis = await api("/api/ai/analyze", {
+      method: "POST",
+      body: JSON.stringify({ report })
+    });
+
+    if (!analysis.ok) {
+      throw new Error(analysis.message || "Analysis failed");
+    }
+
+    $("aiAnalysisMessage").textContent =
+      "Analysis completed using the supplied report. " +
+      "The official verdict has not been changed.";
+
+    showAnalysis(analysis);
+  } catch (error) {
+    $("aiAnalysisMessage").textContent =
+      "Could not analyze report: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+$("generatePlanButton").addEventListener("click", generateAIPlan);
+$("analyzeButton").addEventListener("click", analyzeLatestTest);
+
+
+let currentSuite = null;
+let suiteHistory = [];
+
+function setSuiteMessage(message, type = "") {
+  const el = $("suiteMessage");
+  el.textContent = message;
+  el.className = "message" + (type ? " " + type : "");
+}
+
+function renderSuiteReport(report) {
+  currentSuite = report;
+
+  $("suiteDeviceStatus").textContent = report.device_status || "ERROR";
+  $("suiteOverallStatus").textContent = report.suite_status || "ERROR";
+
+  const counts = report.counts || {};
+  $("suitePassCount").textContent = counts.PASS || 0;
+  $("suiteFailCount").textContent = counts.FAIL || 0;
+  $("suiteInconclusiveCount").textContent = counts.INCONCLUSIVE || 0;
+  $("suiteBlockedCount").textContent =
+    (counts.BLOCKED || 0) + " / " + (counts.ERROR || 0);
+
+  $("suiteSummaryText").textContent =
+    (report.summary || "") +
+    " Device verdict uses the actual physical LED test; " +
+    "software checks are reported separately.";
+
+  const body = $("suiteResultsBody");
+  body.replaceChildren();
+
+  for (const test of report.cases || []) {
+    const row = document.createElement("tr");
+
+    const actual = test.actual == null
+      ? "No actual measurement"
+      : typeof test.actual === "object"
+        ? JSON.stringify(test.actual)
+        : String(test.actual);
+
+    const values = [
+      test.test_id,
+      test.purpose,
+      test.execution,
+      test.status,
+      test.expected,
+      actual + (test.details ? "\n" + test.details : "")
+    ];
+
+    values.forEach((value, index) => {
+      const cell = document.createElement("td");
+      cell.textContent = value == null ? "—" : String(value);
+
+      // Evidence may be long; allow wrapping instead of widening the page.
+      cell.style.whiteSpace = "normal";
+      cell.style.overflowWrap = "anywhere";
+
+      if (index === 3) {
+        const badge = document.createElement("span");
+        badge.className = "badge " + String(value);
+        badge.textContent = String(value);
+        cell.replaceChildren(badge);
+      }
+
+      row.appendChild(cell);
+    });
+
+    body.appendChild(row);
+  }
+    // Reflect executed outcomes in the generated test-plan table.
+  const planRows = $("aiPlanBody").querySelectorAll("tr");
+
+  for (const row of planRows) {
+    const cells = row.querySelectorAll("td");
+    if (cells.length < 5) continue;
+
+    const testId = cells[0].textContent.trim();
+    const result = (report.cases || []).find(
+      test => test.test_id === testId
+    );
+
+    if (!result) continue;
+
+    const badge = document.createElement("span");
+    badge.className = "badge " + result.status;
+    badge.textContent = result.status;
+    cells[4].replaceChildren(badge);
+  }
+  $("suiteProgressBar").style.width = "100%";
+  $("suiteProgressText").textContent =
+    (report.total_cases || 0) + " cases processed; " +
+    (report.executed_cases || 0) + " eligible cases completed.";
+
+  setSuiteMessage(
+    "Suite finished. Device verdict: " + report.device_status +
+    ". Suite verdict: " + report.suite_status + ".",
+    report.suite_status === "PASS" ? "success" :
+      report.suite_status === "FAIL" ? "error" : "warning"
+  );
+}
+
+async function runAISuite() {
+  if (running) return;
+
+  const label = $("label").value.trim();
+  if (!label) {
+    setSuiteMessage("Enter a component label first.", "warning");
+    $("label").focus();
+    return;
+  }
+
+  running = true;
+  $("runSuiteButton").disabled = true;
+  $("testButton").disabled = true;
+  $("refreshButton").disabled = true;
+  $("generatePlanButton").disabled = true;
+  $("analyzeButton").disabled = true;
+
+  $("suiteProgressBar").style.width = "10%";
+  $("suiteProgressText").textContent = "Checking Arduino connection...";
+
+  try {
+    const status = await api("/api/status");
+
+    if (!status.connected) {
+      throw new Error(
+        "Arduino is disconnected. No suite was run and no component fault was inferred."
+      );
+    }
+
+    setSuiteMessage(
+      "Running supported tests sequentially. Software simulations do not drive hardware."
+    );
+    $("suiteProgressBar").style.width = "30%";
+    $("suiteProgressText").textContent =
+      "Executing physical and software checks. Waiting for the backend report...";
+
+    const report = await api("/api/ai/run-suite", {
+      method: "POST",
+      body: JSON.stringify({ component_label: label })
+    });
+
+    renderSuiteReport(report);
+    await refreshSuiteHistory();
+    await refreshHistory();
+
+  } catch (error) {
+    $("suiteProgressBar").style.width = "0%";
+    $("suiteProgressText").textContent = "Suite did not complete.";
+    setSuiteMessage(
+      "Suite error: " + error.message +
+      " Check the backend and Arduino connection. This is not a component verdict.",
+      "error"
+    );
+  } finally {
+    running = false;
+    $("generatePlanButton").disabled = false;
+    $("analyzeButton").disabled = false;
+    $("refreshButton").disabled = false;
+    $("runSuiteButton").disabled = false;
+    await refreshStatus();
+  }
+}
+
+async function refreshSuiteHistory() {
+  try {
+    suiteHistory = await api("/api/ai/suite-history?limit=20");
+
+    const body = $("suiteHistoryBody");
+    body.replaceChildren();
+
+    if (!suiteHistory.length) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 4;
+      cell.className = "empty";
+      cell.textContent = "No saved suites yet.";
+      row.appendChild(cell);
+      body.appendChild(row);
+      return;
+    }
+
+    for (const report of suiteHistory) {
+      const row = document.createElement("tr");
+
+      const values = [
+        report.timestamp
+          ? new Date(report.timestamp).toLocaleString()
+          : "—",
+        report.component || "—",
+        report.device_status || "—",
+        report.suite_status || "—"
+      ];
+
+      values.forEach((value, index) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+
+        if (index >= 2) {
+          const badge = document.createElement("span");
+          badge.className = "badge " + String(value);
+          badge.textContent = String(value);
+          cell.replaceChildren(badge);
+        }
+
+        row.appendChild(cell);
+      });
+
+      row.style.cursor = "pointer";
+      row.title = "Click to view this saved suite";
+      row.addEventListener("click", () => renderSuiteReport(report));
+      body.appendChild(row);
+    }
+  } catch (error) {
+    $("suiteHistoryBody").textContent =
+      "Unable to load suite history: " + error.message;
+  }
+}
+
+function exportSuiteJSON() {
+  if (!currentSuite) {
+    setSuiteMessage("Run a suite before exporting its report.", "warning");
+    return;
+  }
+
+  downloadFile(
+    "embedded-test-suite-" + currentSuite.suite_id + ".json",
+    JSON.stringify(currentSuite, null, 2),
+    "application/json"
+  );
+}
+
+function exportSuiteCSV() {
+  if (!currentSuite) {
+    setSuiteMessage("Run a suite before exporting its report.", "warning");
+    return;
+  }
+
+  const columns = [
+    "suite_id", "timestamp", "component", "device_status",
+    "suite_status", "test_id", "category", "purpose",
+    "execution", "status", "expected", "actual", "details"
+  ];
+
+  const lines = [columns.join(",")];
+
+  for (const test of currentSuite.cases || []) {
+    const row = [
+      currentSuite.suite_id,
+      currentSuite.timestamp,
+      currentSuite.component,
+      currentSuite.device_status,
+      currentSuite.suite_status,
+      test.test_id,
+      test.category,
+      test.purpose,
+      test.execution,
+      test.status,
+      test.expected,
+      test.actual == null ? "" :
+        typeof test.actual === "object"
+          ? JSON.stringify(test.actual)
+          : test.actual,
+      test.details || ""
+    ];
+
+    lines.push(row.map(csvCell).join(","));
+  }
+
+  downloadFile(
+    "embedded-test-suite-" + currentSuite.suite_id + ".csv",
+    lines.join("\r\n"),
+    "text/csv;charset=utf-8"
+  );
+}
+
+$("runSuiteButton").addEventListener("click", runAISuite);
+$("suiteJsonButton").addEventListener("click", exportSuiteJSON);
+$("suiteCsvButton").addEventListener("click", exportSuiteCSV);
+$("suiteHistoryButton").addEventListener("click", refreshSuiteHistory);
+
+
+  async function initialize() {
+  await refreshStatus();
+  await refreshHistory();
+  await refreshSuiteHistory();
+  setInterval(refreshStatus, 5000);
+}
+
+  initialize();
+</script>
+</body>
+</html>
